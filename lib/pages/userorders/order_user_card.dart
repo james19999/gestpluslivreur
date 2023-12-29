@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gestlivreur/pages/colors/color.dart';
+import 'package:gestlivreur/pages/order/order_detail.dart';
+import 'package:get/get.dart';
 
 class OrderCardUser extends ConsumerWidget {
   const OrderCardUser({super.key});
@@ -70,8 +72,7 @@ class OrderCardUser extends ConsumerWidget {
         ),
         trailing: IconButton(
           onPressed: () {
-            // Get.to(() => ShowClient(client: clientModel),
-            //     transition: Transition.fade);
+            Get.to(() => OrderDetail(), transition: Transition.fade);
           },
           icon: Icon(
             Icons.remove_red_eye,
