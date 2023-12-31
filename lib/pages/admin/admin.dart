@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gestlivreur/pages/helper/local_storage.dart';
 import 'package:gestlivreur/pages/order/order_list.dart';
 import 'package:gestlivreur/pages/orderdelivery/derivery_list.dart';
 import 'package:gestlivreur/pages/userorders/order_user.dart';
@@ -25,7 +26,7 @@ class Admin extends ConsumerWidget {
         ),
         backgroundColor: Colors.grey[100],
         appBar: AppBar(
-          title: Text('Komlan James AHIAKPOR '),
+          title: Text('${localstorage.username}'),
           elevation: 0,
           leading: Row(children: [
             Icon(
@@ -173,6 +174,11 @@ class Admin extends ConsumerWidget {
                                 ),
                                 Text(
                                   "Commandes livrées",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 15),
+                                ),
+                                Text(
+                                  "100",
                                   style: TextStyle(
                                       color: Colors.black, fontSize: 15),
                                 )

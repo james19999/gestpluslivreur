@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gestlivreur/pages/models/order.dart';
+import 'package:gestlivreur/pages/services/order_service.dart';
 
 class OrderCard extends ConsumerWidget {
-  const OrderCard({super.key});
+  final Order order;
+  const OrderCard({super.key, required this.order});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: ListTile(
-        onTap: () {
-          // Get.to(() => CreateCart(
-          //       id: clientModel.id,
-          //       name: clientModel.name,
-          //     ));
+        onTap: () async {
+          await OrderService.addOrder(order.id);
         },
         leading: Container(
             decoration: BoxDecoration(
@@ -24,8 +24,7 @@ class OrderCard extends ConsumerWidget {
               child: Image.asset("assets/images/ord.png"),
             )),
         title: Text(
-          "AHIAKPOR KOMLAN JAMES",
-          // clientModel.name.toUpperCase(),
+          order.costumer.name.toUpperCase(),
           style: TextStyle(overflow: TextOverflow.ellipsis, fontSize: 13),
           maxLines: 1,
         ),
@@ -34,7 +33,7 @@ class OrderCard extends ConsumerWidget {
             Row(
               children: [
                 Text(
-                  "1000000 XOF",
+                  "${order.total} XOF",
                   style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -47,16 +46,18 @@ class OrderCard extends ConsumerWidget {
             ),
             Row(
               children: [
-                Text(
-                  "93 26 60 04 |",
-                  style: TextStyle(
-                      overflow: TextOverflow.ellipsis,
-                      fontSize: 13,
-                      letterSpacing: 2),
-                  maxLines: 1,
+                Flexible(
+                  child: Text(
+                    "${order.costumer.phone}| ",
+                    style: TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: 13,
+                        letterSpacing: 2),
+                    maxLines: 1,
+                  ),
                 ),
                 Text(
-                  "12:30",
+                  "${order.time}",
                   style: TextStyle(
                       overflow: TextOverflow.ellipsis,
                       fontSize: 13,
@@ -68,9 +69,8 @@ class OrderCard extends ConsumerWidget {
           ],
         ),
         trailing: IconButton(
-          onPressed: () {
-            // Get.to(() => ShowClient(client: clientModel),
-            //     transition: Transition.fade);
+          onPressed: () async {
+            await OrderService.addOrder(order.id);
           },
           icon: Icon(
             Icons.shopping_basket_sharp,

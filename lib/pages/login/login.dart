@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gestlivreur/pages/admin/admin.dart';
+import 'package:gestlivreur/pages/services/user_services.dart';
+import 'package:gestlivreur/pages/toas/toas.dart';
 import 'package:gestlivreur/pages/widgets/input.dart';
 import 'package:get/get.dart';
 
@@ -39,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
                   const Row(
                     children: [
                       Text(
-                        'Entrer vos identifiants de connexion',
+                        'Entrer vos identifiants de connexion livreur',
                         style: TextStyle(
                           color: Colors.black,
                         ),
@@ -81,9 +83,19 @@ class _LoginPageState extends State<LoginPage> {
                     height: Get.height * 0.06,
                     width: Get.width,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_form.currentState!.validate()) {
-                          Get.off(() => Admin());
+                          var cheked = await UserService().AuthUser(
+                            _passwordController.text.trim(),
+                            _emailController.text,
+                          );
+
+                          if (cheked == true) {
+                            Get.off(() => Admin());
+                          } else {
+                            Toas.getSnackbarEror("",
+                                "Erreur de connexion vérifier vos informations.");
+                          }
                         }
                       },
                       child: Text('Connectez-vous'),

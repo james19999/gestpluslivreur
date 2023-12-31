@@ -1,12 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gestlivreur/pages/constant/date_convert.dart';
+import 'package:gestlivreur/pages/models/order.dart';
+import 'package:gestlivreur/pages/services/order_service.dart';
+import 'package:gestlivreur/pages/widgets/input.dart';
 import 'package:get/get.dart';
 
-class OrderDetail extends ConsumerWidget {
-  const OrderDetail({super.key});
+class OrderDetail extends ConsumerStatefulWidget {
+  final Order selectedOrders;
+  const OrderDetail({super.key, required this.selectedOrders});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _OrderDetailState();
+}
+
+class _OrderDetailState extends ConsumerState<OrderDetail> {
+  @override
+  final TextEditingController raison = TextEditingController();
+  GlobalKey<FormState> _form = GlobalKey<FormState>();
+  final seleclted = StateProvider((ref) => '');
+  var tab = [
+    "delivered",
+    "canceled",
+  ];
+  void initState() {
+    // TODO: implement initState
+
+    super.initState();
+  }
+
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -44,9 +67,12 @@ class OrderDetail extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                       ), //BoxDecoration
                       child: Column(children: [
-                        Textline("Nom", "AHIAKPOR KOMLAN JAMES"),
-                        Textline("Téléphone", "93 26 60 04"),
-                        Textline("Adresse", "Lomé tokoin"),
+                        Textline(
+                            "Nom", "${widget.selectedOrders.user['name']}"),
+                        Textline("Téléphone",
+                            "${widget.selectedOrders.user['phone']}"),
+                        Textline("Adresse",
+                            "${widget.selectedOrders.user['adresse']}"),
                       ]),
                     ), //Container
                   ), //Flexible
@@ -63,9 +89,12 @@ class OrderDetail extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Column(children: [
-                        Textline("Nom", "AHIAKPOR KOMLAN JAMES"),
-                        Textline("Téléphone", "93 26 60 04"),
-                        Textline("Adresse", "Lomé tokoin"),
+                        Textline(
+                            "Nom", "${widget.selectedOrders.costumer.name}"),
+                        Textline("Téléphone",
+                            "${widget.selectedOrders.costumer.phone}"),
+                        Textline("Adresse",
+                            "${widget.selectedOrders.costumer.adresse}"),
                       ]),
                       //BoxDecoration
                     ), //Container
@@ -83,9 +112,11 @@ class OrderDetail extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Column(children: [
-                        Textline("Numéro", "AHDOJO-567"),
-                        Textline("Date", "12/12/2023"),
-                        Textline("Heur de livraison", "8:12"),
+                        Textline("Numéro", "${widget.selectedOrders.code}"),
+                        Textline("Date",
+                            "${DateConverter.estimatedDate(widget.selectedOrders.createdAt)}"),
+                        Textline("Heur de livraison",
+                            "${widget.selectedOrders.time}"),
                       ]),
                       //BoxDecoration
                     ), //Container
@@ -94,11 +125,9 @@ class OrderDetail extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
               ),
               SizedBox(
-                height: Get.height * 0.015,
+                height: Get.height * 0.01,
               ),
-              Divider(
-                color: Colors.black,
-              ),
+              Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -108,27 +137,54 @@ class OrderDetail extends ConsumerWidget {
                   HedarLine("Total"),
                 ],
               ),
-              ListView.builder(
+              ListView.separated(
                 shrinkWrap: true,
-                itemCount: 10,
+                itemCount: widget.selectedOrders.orderItems.length,
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
+                  var order = widget.selectedOrders.orderItems[index];
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      HedarLines("Saceffffff"),
-                      HedarLines("100"),
-                      HedarLines("10"),
-                      HedarLines("100000"),
+                      HedarLines(order.product.name),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 25),
+                        child: HedarLines("${order.product.price} XOF"),
+                      ),
+                      HedarLines(order.quantity),
+                      HedarLines("${order.product.price * order.quantity} XOF"),
                     ],
                   );
                 },
-              ),
-              SizedBox(
-                height: Get.height * 0.017,
+                separatorBuilder: (context, index) {
+                  return const Divider(
+                    thickness: 2.0,
+                  );
+                },
               ),
               Divider(
-                color: Colors.black,
+                thickness: 2.0,
+              ),
+              SizedBox(
+                height: Get.height * 0.01,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Textline(
+                      "Sous-total", "${widget.selectedOrders.subtotal} XOF"),
+                  Text(
+                      "Etat: ${widget.selectedOrders.status == 'ordered' ? 'En cours' : widget.selectedOrders.status == 'delivered' ? 'Livré' : widget.selectedOrders.status == 'canceled' ? 'Annuler' : ''}",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: widget.selectedOrders.status == 'ordered'
+                              ? Colors.amber
+                              : widget.selectedOrders.status == 'delivered'
+                                  ? Colors.green
+                                  : widget.selectedOrders.status == 'canceled'
+                                      ? Colors.red
+                                      : Colors.transparent)),
+                ],
               ),
               SizedBox(
                 height: Get.height * 0.017,
@@ -136,39 +192,130 @@ class OrderDetail extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Textline("Sous-total", 10000),
-                  Container(
-                    height: Get.height * 0.02,
-                    color: Colors.amber,
-                    width: Get.width * 0.3,
-                  )
+                  Textline(
+                      "Frais de livraison", "${widget.selectedOrders.tax} XOF"),
                 ],
               ),
-              Row(
-                children: [
-                  Textline("Frais de livraison", 10000),
-                ],
+              SizedBox(
+                height: Get.height * 0.017,
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Textline("Total", 10000),
+                  Textline("Total", "${widget.selectedOrders.total} XOF"),
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    color: Colors.black,
-                    height: Get.height * 0.03,
-                    width: Get.width * 0.3,
-                  ),
-                  Container(
-                    color: Colors.black,
-                    height: Get.height * 0.03,
-                    width: Get.width * 0.3,
-                  ),
-                ],
-              )
+              SizedBox(
+                height: Get.height * 0.01,
+              ),
+              GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // Number of columns
+                  crossAxisSpacing: 80.0, // Spacing between columns
+                  mainAxisSpacing: 8.0, // Spacing between rows
+                ),
+                itemCount: tab.length,
+                shrinkWrap: true, // Number of items in the grid
+                itemBuilder: (context, index) {
+                  // Build each grid item
+                  return TextButton(
+                      onPressed: () async {
+                        ref.watch(seleclted.notifier).state = tab[index];
+                        if (ref.watch(seleclted.notifier).state == 'canceled') {
+                          Get.defaultDialog(
+                              title: 'Annuler la commande',
+                              radius: 4,
+                              content: Form(
+                                  key: _form,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 25, right: 25),
+                                    child: InputFild(
+                                      icon: Icon(Icons.cancel),
+                                      hintText: 'Raison',
+                                      controlle: raison,
+                                      validator: (value) => value!.isEmpty
+                                          ? "Entrer la raison".tr
+                                          : null,
+                                    ),
+                                  )),
+                              confirm: Container(
+                                height: Get.height * 0.04,
+                                width: Get.width * 0.57,
+                                color: Colors.green,
+                                child: TextButton(
+                                  onPressed: () async {
+                                    if (_form.currentState!.validate()) {
+                                      await OrderService.validerorder(
+                                          widget.selectedOrders.id,
+                                          ref.watch(seleclted.notifier).state,
+                                          raison.text);
+                                    }
+                                  },
+                                  child: Text(
+                                    'Valider',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              cancel: Container(
+                                height: Get.height * 0.04,
+                                width: Get.width * 0.57,
+                                color: Colors.red,
+                                child: TextButton(
+                                    onPressed: () {
+                                      Get.back();
+                                    },
+                                    child: Text("Retour",
+                                        style: TextStyle(color: Colors.white))),
+                              ));
+                        } else {
+                          await OrderService.validerorder(
+                              widget.selectedOrders.id,
+                              ref.watch(seleclted.notifier).state,
+                              raison.text);
+                        }
+                      },
+                      child: Container(
+                        height: Get.height * 0.06,
+                        width: Get.width * 0.5,
+                        color: tab[index] == 'delivered'
+                            ? Colors.green
+                            : tab[index] == 'canceled'
+                                ? Colors.red
+                                : Colors.transparent,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            "${tab[index] == 'delivered' ? 'Valider' : tab[index] == 'canceled' ? 'Annuler' : ''}",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ));
+                },
+              ),
+              widget.selectedOrders.avis != null
+                  ? Row(
+                      children: [
+                        Container(
+                          height: Get.height * 0.1,
+                          width: Get.width * 0.95,
+                          decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(5)),
+                          child: SizedBox(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              child: Text(
+                                "${widget.selectedOrders.avis ?? ''}",
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(''),
             ],
           ),
         ),
@@ -181,10 +328,13 @@ class OrderDetail extends ConsumerWidget {
         style: TextStyle(
             color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
       );
-  Text HedarLines(label) => Text(
-        "$label",
-        style: TextStyle(overflow: TextOverflow.ellipsis, fontSize: 13),
-        maxLines: 1,
+  SizedBox HedarLines(label) => SizedBox(
+        width: 70,
+        child: Text(
+          "$label",
+          style: TextStyle(),
+          // maxLines: 1,
+        ),
       );
 
   Text Textline(label1, label2) => Text("$label1 : $label2");
