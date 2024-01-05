@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gestlivreur/pages/constant/date_convert.dart';
+import 'package:gestlivreur/pages/controller/order_controller.dart';
 import 'package:gestlivreur/pages/models/order.dart';
 import 'package:gestlivreur/pages/services/order_service.dart';
 import 'package:gestlivreur/pages/widgets/input.dart';
@@ -30,6 +31,8 @@ class _OrderDetailState extends ConsumerState<OrderDetail> {
   }
 
   Widget build(BuildContext context) {
+    final contoller = ref.watch(OrderProvider);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -47,38 +50,15 @@ class _OrderDetailState extends ConsumerState<OrderDetail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  HedarLine("Livreur"),
                   HedarLine("Client"),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 24.0),
-                    child: HedarLine("Commande"),
-                  ),
+                  HedarLine("Commande"),
                 ],
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                 children: <Widget>[
-                  Flexible(
-                    flex: 1,
-                    fit: FlexFit.tight,
-                    child: Container(
-                      height: Get.height * 0.2,
-                      width: Get.width * 1,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ), //BoxDecoration
-                      child: Column(children: [
-                        Textline(
-                            "Nom", "${widget.selectedOrders.user['name']}"),
-                        Textline("Téléphone",
-                            "${widget.selectedOrders.user['phone']}"),
-                        Textline("Adresse",
-                            "${widget.selectedOrders.user['adresse']}"),
-                      ]),
-                    ), //Container
-                  ), //Flexible
-                  SizedBox(
-                    width: 20,
-                  ), //SizedBox
+                  //SizedBox
                   Flexible(
                     flex: 1,
                     fit: FlexFit.loose,
@@ -122,7 +102,6 @@ class _OrderDetailState extends ConsumerState<OrderDetail> {
                     ), //Container
                   ) //Flexible
                 ], //<Widget>[]
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
               ),
               SizedBox(
                 height: Get.height * 0.01,
@@ -208,92 +187,100 @@ class _OrderDetailState extends ConsumerState<OrderDetail> {
               SizedBox(
                 height: Get.height * 0.01,
               ),
-              GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Number of columns
-                  crossAxisSpacing: 80.0, // Spacing between columns
-                  mainAxisSpacing: 8.0, // Spacing between rows
-                ),
-                itemCount: tab.length,
-                shrinkWrap: true, // Number of items in the grid
-                itemBuilder: (context, index) {
-                  // Build each grid item
-                  return TextButton(
-                      onPressed: () async {
-                        ref.watch(seleclted.notifier).state = tab[index];
-                        if (ref.watch(seleclted.notifier).state == 'canceled') {
-                          Get.defaultDialog(
-                              title: 'Annuler la commande',
-                              radius: 4,
-                              content: Form(
-                                  key: _form,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 25, right: 25),
-                                    child: InputFild(
-                                      icon: Icon(Icons.cancel),
-                                      hintText: 'Raison',
-                                      controlle: raison,
-                                      validator: (value) => value!.isEmpty
-                                          ? "Entrer la raison".tr
-                                          : null,
+              widget.selectedOrders.status == 'canceled' ||
+                      widget.selectedOrders.status == 'delivered'
+                  ? Text('')
+                  : GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // Number of columns
+                        crossAxisSpacing: 80.0, // Spacing between columns
+                        mainAxisSpacing: 8.0, // Spacing between rows
+                      ),
+                      itemCount: tab.length,
+                      shrinkWrap: true, // Number of items in the grid
+                      itemBuilder: (context, index) {
+                        // Build each grid item
+                        return TextButton(
+                            onPressed: () async {
+                              ref.watch(seleclted.notifier).state = tab[index];
+                              if (ref.watch(seleclted.notifier).state ==
+                                  'canceled') {
+                                Get.defaultDialog(
+                                    title: 'Annuler la commande',
+                                    radius: 4,
+                                    content: Form(
+                                        key: _form,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 25, right: 25),
+                                          child: InputFild(
+                                            icon: Icon(Icons.cancel),
+                                            hintText: 'Raison',
+                                            controlle: raison,
+                                            validator: (value) => value!.isEmpty
+                                                ? "Entrer la raison".tr
+                                                : null,
+                                          ),
+                                        )),
+                                    confirm: Container(
+                                      height: Get.height * 0.04,
+                                      width: Get.width * 0.57,
+                                      color: Colors.green,
+                                      child: TextButton(
+                                        onPressed: () async {
+                                          if (_form.currentState!.validate()) {
+                                            await OrderService.validerorder(
+                                                widget.selectedOrders.id,
+                                                ref
+                                                    .watch(seleclted.notifier)
+                                                    .state,
+                                                raison.text);
+                                          }
+                                        },
+                                        child: Text(
+                                          'Valider',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
                                     ),
-                                  )),
-                              confirm: Container(
-                                height: Get.height * 0.04,
-                                width: Get.width * 0.57,
-                                color: Colors.green,
-                                child: TextButton(
-                                  onPressed: () async {
-                                    if (_form.currentState!.validate()) {
-                                      await OrderService.validerorder(
-                                          widget.selectedOrders.id,
-                                          ref.watch(seleclted.notifier).state,
-                                          raison.text);
-                                    }
-                                  },
-                                  child: Text(
-                                    'Valider',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
+                                    cancel: Container(
+                                      height: Get.height * 0.04,
+                                      width: Get.width * 0.57,
+                                      color: Colors.red,
+                                      child: TextButton(
+                                          onPressed: () {
+                                            Get.back();
+                                          },
+                                          child: Text("Retour",
+                                              style: TextStyle(
+                                                  color: Colors.white))),
+                                    ));
+                              } else {
+                                await OrderService.validerorder(
+                                    widget.selectedOrders.id,
+                                    ref.watch(seleclted.notifier).state,
+                                    raison.text);
+                                contoller.getallorderlist();
+                              }
+                            },
+                            child: Container(
+                              height: Get.height * 0.06,
+                              width: Get.width * 0.5,
+                              color: tab[index] == 'delivered'
+                                  ? Colors.green
+                                  : tab[index] == 'canceled'
+                                      ? Colors.red
+                                      : Colors.transparent,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "${tab[index] == 'delivered' ? 'Valider' : tab[index] == 'canceled' ? 'Annuler' : ''}",
+                                  style: TextStyle(color: Colors.white),
                                 ),
                               ),
-                              cancel: Container(
-                                height: Get.height * 0.04,
-                                width: Get.width * 0.57,
-                                color: Colors.red,
-                                child: TextButton(
-                                    onPressed: () {
-                                      Get.back();
-                                    },
-                                    child: Text("Retour",
-                                        style: TextStyle(color: Colors.white))),
-                              ));
-                        } else {
-                          await OrderService.validerorder(
-                              widget.selectedOrders.id,
-                              ref.watch(seleclted.notifier).state,
-                              raison.text);
-                        }
+                            ));
                       },
-                      child: Container(
-                        height: Get.height * 0.06,
-                        width: Get.width * 0.5,
-                        color: tab[index] == 'delivered'
-                            ? Colors.green
-                            : tab[index] == 'canceled'
-                                ? Colors.red
-                                : Colors.transparent,
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            "${tab[index] == 'delivered' ? 'Valider' : tab[index] == 'canceled' ? 'Annuler' : ''}",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ));
-                },
-              ),
+                    ),
               widget.selectedOrders.avis != null
                   ? Row(
                       children: [

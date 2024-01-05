@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gestlivreur/pages/colors/color.dart';
+import 'package:gestlivreur/pages/models/order.dart';
+import 'package:gestlivreur/pages/order/order_detail.dart';
+import 'package:get/get.dart';
 
 class DelivryCard extends ConsumerWidget {
-  const DelivryCard({super.key});
+  final Order order;
+  const DelivryCard({super.key, required this.order});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: ListTile(
-        onTap: () {
-          // Get.to(() => CreateCart(
-          //       id: clientModel.id,
-          //       name: clientModel.name,
-          //     ));
+        onTap: () async {
+          Get.to(() => OrderDetail(selectedOrders: order),
+              transition: Transition.fade);
         },
         leading: Container(
             decoration: BoxDecoration(
@@ -25,8 +26,7 @@ class DelivryCard extends ConsumerWidget {
               child: Image.asset("assets/images/reciv.png"),
             )),
         title: Text(
-          "AHIAKPOR KOMLAN JAMES",
-          // clientModel.name.toUpperCase(),
+          order.costumer.name.toUpperCase(),
           style: TextStyle(overflow: TextOverflow.ellipsis, fontSize: 13),
           maxLines: 1,
         ),
@@ -35,7 +35,7 @@ class DelivryCard extends ConsumerWidget {
             Row(
               children: [
                 Text(
-                  "1000000 XOF",
+                  "${order.total} XOF",
                   style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -48,16 +48,18 @@ class DelivryCard extends ConsumerWidget {
             ),
             Row(
               children: [
-                Text(
-                  "93 26 60 04 |",
-                  style: TextStyle(
-                      overflow: TextOverflow.ellipsis,
-                      fontSize: 13,
-                      letterSpacing: 2),
-                  maxLines: 1,
+                Flexible(
+                  child: Text(
+                    "${order.costumer!.phone}| ",
+                    style: TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: 13,
+                        letterSpacing: 2),
+                    maxLines: 1,
+                  ),
                 ),
                 Text(
-                  "12:30",
+                  "${order.time}",
                   style: TextStyle(
                       overflow: TextOverflow.ellipsis,
                       fontSize: 13,
@@ -69,13 +71,13 @@ class DelivryCard extends ConsumerWidget {
           ],
         ),
         trailing: IconButton(
-          onPressed: () {
-            // Get.to(() => ShowClient(client: clientModel),
-            //     transition: Transition.fade);
+          onPressed: () async {
+            Get.to(() => OrderDetail(selectedOrders: order),
+                transition: Transition.fade);
           },
           icon: Icon(
-            Icons.remove_red_eye,
-            color: AppColors.mainColors,
+            Icons.remove_red_eye_outlined,
+            color: Colors.green,
           ),
         ),
       ),

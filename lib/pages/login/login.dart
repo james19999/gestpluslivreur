@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   GlobalKey<FormState> _form = GlobalKey<FormState>();
   bool obscur = true;
+  bool isloade = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -85,6 +86,9 @@ class _LoginPageState extends State<LoginPage> {
                     child: ElevatedButton(
                       onPressed: () async {
                         if (_form.currentState!.validate()) {
+                          setState(() {
+                            isloade = true;
+                          });
                           var cheked = await UserService().AuthUser(
                             _passwordController.text.trim(),
                             _emailController.text,
@@ -95,10 +99,15 @@ class _LoginPageState extends State<LoginPage> {
                           } else {
                             Toas.getSnackbarEror("",
                                 "Erreur de connexion vérifier vos informations.");
+                            setState(() {
+                              isloade = false;
+                            });
                           }
                         }
                       },
-                      child: Text('Connectez-vous'),
+                      child: isloade == false
+                          ? Text('Connectez-vous')
+                          : CircularProgressIndicator(color: Colors.white),
                     ),
                   ),
                 ],

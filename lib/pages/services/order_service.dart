@@ -18,6 +18,7 @@ class OrderService {
     });
     if (response.statusCode == 200) {
       var result = jsonDecode(response.body)['order'];
+      // print(result);
       return List<Order>.from(result.map((orders) => Order.fromJson(orders)));
     } else {
       throw Exception('fail to loader');
@@ -76,5 +77,20 @@ class OrderService {
         }
       }
     } catch (e) {}
+  }
+
+  static Future<List<Order>> getorderslist() async {
+    var url = Uri.parse("${BaseUrl}auth/user/livrable/list");
+    final response = await http.get(url, headers: {
+      'content-type': 'application/json',
+      'Authorization': "Bearer ${localstorage.token}"
+    });
+
+    if (response.statusCode == 200) {
+      var result = jsonDecode(response.body)['orders'];
+      return List<Order>.from(result.map((order) => Order.fromJson(order)));
+    } else {
+      throw Exception('fail to loader');
+    }
   }
 }

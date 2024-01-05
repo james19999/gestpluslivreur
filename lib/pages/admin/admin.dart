@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gestlivreur/pages/colors/color.dart';
+import 'package:gestlivreur/pages/controller/order_controller.dart';
 import 'package:gestlivreur/pages/helper/local_storage.dart';
+import 'package:gestlivreur/pages/login/login.dart';
 import 'package:gestlivreur/pages/order/order_list.dart';
 import 'package:gestlivreur/pages/orderdelivery/derivery_list.dart';
+import 'package:gestlivreur/pages/services/user_services.dart';
 import 'package:gestlivreur/pages/userorders/order_user.dart';
 import 'package:get/get.dart';
 
@@ -11,6 +15,7 @@ class Admin extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final contoller = ref.watch(OrderProvider);
     return Scaffold(
         bottomSheet: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -18,9 +23,33 @@ class Admin extends ConsumerWidget {
             height: Get.height * 0.06,
             width: Get.width,
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Get.defaultDialog(
+                    content: Icon(
+                      Icons.logout_outlined,
+                      size: 50,
+                      color: AppColors.mainColors,
+                    ),
+                    title: "",
+                    radius: 4,
+                    confirm: TextButton(
+                      onPressed: () async {
+                        var check = await UserService().LogoutUser();
+                        if (check == true) {
+                          Get.offAll(() => LoginPage(),
+                              transition: Transition.fade);
+                        }
+                      },
+                      child: Text("Se deconnecter"),
+                    ),
+                    cancel: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("Annuler")));
+              },
               label: Text("Se deconnecter"),
-              icon: Icon(Icons.login_rounded),
+              icon: Icon(Icons.logout_outlined),
             ),
           ),
         ),
@@ -28,12 +57,25 @@ class Admin extends ConsumerWidget {
         appBar: AppBar(
           title: Text('${localstorage.username}'),
           elevation: 0,
-          leading: Row(children: [
-            Icon(
-              Icons.account_circle_outlined,
-              size: 45,
-            ),
-          ]),
+          leading: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 9),
+            child: Row(children: [
+              Icon(
+                Icons.account_circle_outlined,
+                size: 30,
+              ),
+            ]),
+          ),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  contoller.getallorderlist();
+                },
+                icon: Icon(
+                  Icons.refresh_sharp,
+                  size: 30,
+                ))
+          ],
         ),
         body: Center(
           child: Container(
@@ -67,10 +109,14 @@ class Admin extends ConsumerWidget {
                                   "assets/images/ord.png",
                                   height: 50,
                                 ),
-                                Text(
-                                  "Liste des livraisons",
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 15),
+                                Column(
+                                  children: [
+                                    Text(
+                                      "Liste des livraisons",
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 15),
+                                    ),
+                                  ],
                                 )
                               ]),
                         ),
@@ -122,9 +168,7 @@ class Admin extends ConsumerWidget {
                       flex: 1,
                       fit: FlexFit.tight,
                       child: InkWell(
-                        onTap: () {
-                          Get.to(() => OrderList());
-                        },
+                        onTap: () {},
                         child: Container(
                           height: Get.height * 0.19,
                           decoration: BoxDecoration(
@@ -142,6 +186,13 @@ class Admin extends ConsumerWidget {
                                   "Solde des livraisons",
                                   style: TextStyle(
                                       color: Colors.black, fontSize: 15),
+                                ),
+                                Text(
+                                  "${contoller.total} XOF",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
                                 )
                               ]),
                         ),
@@ -178,9 +229,11 @@ class Admin extends ConsumerWidget {
                                       color: Colors.black, fontSize: 15),
                                 ),
                                 Text(
-                                  "100",
+                                  "${contoller.orders.length}",
                                   style: TextStyle(
-                                      color: Colors.black, fontSize: 15),
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
                                 )
                               ]),
                         ),

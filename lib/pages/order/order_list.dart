@@ -27,10 +27,10 @@ class _OrderListState extends ConsumerState<OrderList> {
       selectedOrders = await OrderService.getorders();
       setState(() {});
     } catch (e) {
+      print(e);
       // Handle the error, e.g., show an error message to the user
-      print('Error loading orders: $e');
       // You can use Get.snackbar for a simple error message
-      Get.snackbar('Error', 'Failed to load orders');
+      Get.snackbar('Error', 'Failed to load $e');
     }
   }
 

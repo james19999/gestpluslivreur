@@ -1,54 +1,29 @@
 import 'package:meta/meta.dart';
 import 'dart:convert';
 
-class Temperatures {
-  bool status;
-  List<Order> order;
-
-  Temperatures({
-    required this.status,
-    required this.order,
-  });
-
-  factory Temperatures.fromRawJson(String str) =>
-      Temperatures.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory Temperatures.fromJson(Map<String, dynamic> json) => Temperatures(
-        status: json["status"],
-        order: List<Order>.from(json["order"].map((x) => Order.fromJson(x))),
-      );
-
-  Map<String, dynamic> toJson() => {
-        "status": status,
-        "order": List<dynamic>.from(order.map((x) => x.toJson())),
-      };
-}
-
 class Order {
   dynamic id;
   dynamic userId;
-  String costumerId;
-  String subtotal;
-  String tax;
-  String total;
-  dynamic motif;
-  String code;
-  String time;
+  dynamic costumerId;
+  dynamic subtotal;
+  dynamic tax;
+  dynamic total;
+  dynamic? motif;
+  dynamic code;
+  dynamic time;
   dynamic statusOrder;
-  String status;
+  dynamic status;
   DateTime createdAt;
   DateTime updatedAt;
   dynamic take;
   dynamic brouillon;
   dynamic createdUser;
-  dynamic avis;
+  dynamic? avis;
   dynamic remis;
-  String montant;
-  String type;
+  dynamic montant;
+  dynamic type;
   Costumer costumer;
-  dynamic user;
+  Costumer user;
   List<OrderItem> orderItems;
 
   Order({
@@ -58,7 +33,7 @@ class Order {
     required this.subtotal,
     required this.tax,
     required this.total,
-    required this.motif,
+    this.motif,
     required this.code,
     required this.time,
     required this.statusOrder,
@@ -68,7 +43,7 @@ class Order {
     required this.take,
     required this.brouillon,
     required this.createdUser,
-    required this.avis,
+    this.avis,
     required this.remis,
     required this.montant,
     required this.type,
@@ -83,12 +58,12 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
         id: json["id"],
-        userId: json["user_id"]?.toString() ?? '',
-        costumerId: json["costumer_id"]?.toString() ?? '',
+        userId: json["user_id"],
+        costumerId: json["costumer_id"],
         subtotal: json["subtotal"],
         tax: json["tax"],
         total: json["total"],
-        motif: json["motif"]?.toString() ?? '',
+        motif: json["motif"],
         code: json["code"],
         time: json["time"],
         statusOrder: json["status_order"],
@@ -98,24 +73,24 @@ class Order {
         take: json["take"],
         brouillon: json["brouillon"],
         createdUser: json["created_user"],
-        avis: json["avis"]?.toString() ?? '',
+        avis: json["avis"],
         remis: json["remis"],
         montant: json["montant"],
         type: json["type"],
         costumer: Costumer.fromJson(json["costumer"]),
-        user: json["user"]?.toString() ?? '',
+        user: Costumer.fromJson(json["user"]),
         orderItems: List<OrderItem>.from(
             json["order_items"].map((x) => OrderItem.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "user_id": userId?.toString() ?? '',
+        "user_id": userId,
         "costumer_id": costumerId,
         "subtotal": subtotal,
         "tax": tax,
         "total": total,
-        "motif": motif?.toString() ?? '',
+        "motif": motif,
         "code": code,
         "time": time,
         "status_order": statusOrder,
@@ -125,35 +100,39 @@ class Order {
         "take": take,
         "brouillon": brouillon,
         "created_user": createdUser,
-        "avis": avis?.toString() ?? '',
+        "avis": avis,
         "remis": remis,
         "montant": montant,
         "type": type,
         "costumer": costumer.toJson(),
-        "user": user?.toString() ?? '',
+        "user": user.toJson(),
         "order_items": List<dynamic>.from(orderItems.map((x) => x.toJson())),
       };
 }
 
 class Costumer {
   dynamic id;
-  String name;
-  dynamic email;
-  String phone;
-  String adresse;
+  dynamic name;
+  dynamic? email;
+  dynamic? phone;
+  dynamic? adresse;
   DateTime createdAt;
   DateTime updatedAt;
   dynamic userId;
+  DateTime emailVerifiedAt;
+  dynamic userType;
 
   Costumer({
     required this.id,
     required this.name,
-    required this.email,
-    required this.phone,
+    this.email,
+    this.phone,
     required this.adresse,
     required this.createdAt,
     required this.updatedAt,
     required this.userId,
+    required this.emailVerifiedAt,
+    required this.userType,
   });
 
   factory Costumer.fromRawJson(String str) =>
@@ -164,12 +143,14 @@ class Costumer {
   factory Costumer.fromJson(Map<String, dynamic> json) => Costumer(
         id: json["id"],
         name: json["name"],
-        email: json["email"] ?? '',
+        email: json["email"],
         phone: json["phone"],
-        adresse: json["adresse"] ?? '',
+        adresse: json["adresse"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
-        userId: json["user_id"] ?? '',
+        userId: json["user_id"],
+        emailVerifiedAt: DateTime.parse(json["email_verified_at"]),
+        userType: json["user_type"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -181,6 +162,8 @@ class Costumer {
         "created_at": createdAt.toIso8601String(),
         "updated_at": updatedAt.toIso8601String(),
         "user_id": userId,
+        "email_verified_at": emailVerifiedAt.toIso8601String(),
+        "user_type": userType,
       };
 }
 
@@ -188,7 +171,7 @@ class OrderItem {
   dynamic id;
   dynamic productId;
   dynamic orderId;
-  String price;
+  dynamic price;
   dynamic quantity;
   DateTime createdAt;
   DateTime updatedAt;
@@ -235,7 +218,7 @@ class OrderItem {
 
 class Product {
   dynamic id;
-  String name;
+  dynamic name;
   dynamic price;
   DateTime createdAt;
   DateTime updatedAt;
